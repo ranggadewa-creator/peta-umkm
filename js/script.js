@@ -15,6 +15,13 @@ var osm = L.tileLayer(
     attribution:'© OpenStreetMap'
 });
 
+var esri = L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    {
+        attribution:'Tiles © Esri'
+    }
+);
+
 var satellite = L.tileLayer(
 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
 {
@@ -106,3 +113,14 @@ fetch("data/UMKM_Geojson.geojson")
     }).addTo(map);
 
 });
+var baseMaps = {
+    "OpenStreetMap": osm,
+    "Citra Satelit": esri
+};
+
+var overlayMaps = {
+    "Batas Desa": batasLayer,
+    "UMKM": umkmLayer
+};
+
+L.control.layers(baseMaps, overlayMaps).addTo(map);
