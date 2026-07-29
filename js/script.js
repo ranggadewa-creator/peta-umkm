@@ -56,3 +56,53 @@ fetch("data/batas_desa.geojson")
     map.fitBounds(batasLayer.getBounds());
 
 });
+
+// ===============================
+// LOAD DATA UMKM
+// ===============================
+
+var umkmLayer;
+
+fetch("data/UMKM_Geojson.geojson")
+.then(response => response.json())
+.then(function(data){
+
+    umkmLayer = L.geoJSON(data,{
+
+        pointToLayer:function(feature,latlng){
+
+            return L.circleMarker(latlng,{
+                radius:7,
+                fillColor:"red",
+                color:"white",
+                weight:2,
+                fillOpacity:1
+            });
+
+        },
+
+        onEachFeature:function(feature,layer){
+
+            var p = feature.properties;
+
+            layer.bindPopup(
+                `
+                <center>
+
+                <img src="${p.Foto}" width="220"><br><br>
+
+                <b>${p["Nama Usaha"]}</b><br>
+
+                Pemilik : ${p.Pemilik}<br><br>
+
+                ${p.Deskripsi}
+
+                </center>
+                `
+            );
+
+        }
+
+    }).addTo(map);
+
+});
