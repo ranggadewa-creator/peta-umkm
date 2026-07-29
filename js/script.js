@@ -45,33 +45,28 @@ function styleBatas(feature){
 // ===============================
 
 var batasLayer;
+var umkmLayer;
 
-fetch("data/batas_desa.geojson")
-.then(response=>response.json())
-.then(function(data){
+Promise.all([
+    fetch("data/batas_desa.geojson").then(r => r.json()),
+    fetch("data/UMKM_Geojson.geojson").then(r => r.json())
+]).then(([batasData, umkmData]) => {
 
-    batasLayer=L.geoJSON(data,{
-        style:styleBatas
+    // ======================
+    // BATAS DESA
+    // ======================
+    batasLayer = L.geoJSON(batasData, {
+        style: styleBatas
     }).addTo(map);
 
     map.fitBounds(batasLayer.getBounds());
 
-});
+    // ======================
+    // UMKM
+    // ======================
+    umkmLayer = L.geoJSON(umkmData, {
 
-// ===============================
-// LOAD DATA UMKM
-// ===============================
-
-var umkmLayer;
-
-fetch("data/UMKM_Geojson.geojson")
-.then(response => response.json())
-.then(function(data){
-
-    umkmLayer = L.geoJSON(data,{
-
-        pointToLayer:function(feature,latlng){
-
+        pointToLayer: function(feature, latlng) {
             return L.circleMarker(latlng,{
                 radius:7,
                 fillColor:"red",
@@ -79,42 +74,39 @@ fetch("data/UMKM_Geojson.geojson")
                 weight:2,
                 fillOpacity:1
             });
-
         },
 
-        onEachFeature:function(feature,layer){
+        onEachFeature:function(feature, layer){
 
             var p = feature.properties;
 
-            layer.bindPopup(
-                `
+            layer.bindPopup(`
                 <center>
-
-                <img src="${p.Foto}" width="220"><br><br>
-
-                <b>${p["Nama Usaha"]}</b><br>
-
-                Pemilik : ${p.Pemilik}<br><br>
-
-                ${p.Deskripsi}
-
+                    <img src="${p.Foto}" width="220"><br><br>
+                    <b>${p["Nama Usaha"]}</b><br>
+                    Pemilik : ${p.Pemilik}<br><br>
+                    ${p.Deskripsi}
                 </center>
-                `
-            );
+            `);
 
         }
 
     }).addTo(map);
 
+    // ======================
+    // LAYER CONTROL
+    // ======================
+
+    var baseMaps = {
+        "OpenStreetMap": osm,
+        "Citra Satelit": esri
+    };
+
+    var overlayMaps = {
+        "Batas Desa": batasLayer,
+        "UMKM": umkmLayer
+    };
+
+    L.control.layers(baseMaps, overlayMaps).addTo(map);
+
 });
-var baseMaps = {
-    "OpenStreetMap": osm,
-    "Citra Satelit": esri
-};
-
-var overlayMaps = {
-    "Batas Desa": batasLayer,
-    "UMKM": umkmLayer
-};
-
-L.control.layers(baseMaps, overlayMaps).addTo(map);
